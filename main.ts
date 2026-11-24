@@ -1,21 +1,34 @@
-// The pitch is built to the judge's published brief: one sentence naming a ridiculous invention that fixes a tiny everyday annoyance (oversleeping), the laugh comes from the invention itself rather than a bolted-on joke, the fix is silly yet weirdly plausible (guilt-driven snoozing), the idea is fresh, and the sentence names the annoyance, the invention and its silly mechanism without clutter.
+// absurd-invention-20261124 — my entry for make.fun's "One-Sentence Absurd
+// Invention Pitch" bounty ($2.50 USDC, 220 characters max).
 //
-// Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+// The pitch: an alarm clock with a conscience. It apologises every morning,
+// then feels so guilty about waking you that it snoozes itself — which means
+// oversleeping is, strictly speaking, the clock's fault, not yours. A tiny
+// everyday annoyance, solved by an invention that makes it worse in the most
+// polite way possible.
+//
+// Local run (the grader sets MAKEFUN_OUTPUT_DIR to /output):
+//   MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import * as fs from "node:fs";
+import * as path from "node:path";
 
-const text =
-  "The Apology Alarm Clock: it says sorry every morning, then snoozes " +
-  "itself out of guilt, so oversleeping is technically its fault.";
+const PITCH = "The Apology Alarm Clock: it says sorry every morning, then snoozes itself out of guilt, so oversleeping is technically its fault.";
+const CAP = 220;
 
-// Guard the gate before writing: 1 to 220 characters, not only white space.
-const length = [...text].length;
-if (length < 1 || length > 220 || text.trim().length === 0) {
-  throw new Error(`entry text must be 1-220 characters, got ${length}`);
+function validate(value) {
+  const chars = [...value].length;
+  if (!value.trim()) throw new Error("pitch is empty");
+  if (chars > CAP) throw new Error(`pitch is ${chars} chars, cap is ${CAP}`);
+  if (/\n/.test(value)) throw new Error("pitch must be one sentence on one line");
+  if (!value.endsWith(".")) throw new Error("pitch must end with a full stop");
 }
 
-const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
-mkdirSync(out, { recursive: true });
-writeFileSync(join(out, 'entry.txt'), text + '\n');
+function emit() {
+  validate(PITCH);
+  const target = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+  fs.mkdirSync(target, { recursive: true });
+  fs.writeFileSync(path.join(target, "entry.txt"), PITCH + "\n");
+}
+
+emit();
